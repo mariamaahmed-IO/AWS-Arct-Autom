@@ -1,133 +1,108 @@
-# AWS-Arct-Autom
-##AWS Multi-Tier Architecture with Terraform
+# AWS Multi-Tier Infrastructure with Terraform
 
-## Project Overview
-This project provisions a highly available, secure, and scalable multi-tier architecture** on AWS using Terraform**.
+This project provisions a full-stack AWS infrastructure using Terraform. It includes:
 
-It includes:
-- VPC with public/private subnets across 3 AZs
-- Bastion Host in public subnet
-- Application Servers in private subnets behind an ALB
-- RDS MySQL database in private subnet
-- EFS volume mounted to App Servers
-- S3 bucket for log storage
-- IAM role for EC2 → S3 access
+- VPC with public and private subnets
+- Bastion host
+- EC2 instances (App servers)
+- Application Load Balancer
+- Target Groups
 - Auto Scaling Group with Launch Template
-- DNS & HTTPS using Route 53 + ACM
-- CI/CD-ready infrastructure
+- IAM roles
+- RDS (MySQL) database
+- EFS volume
+- S3 backup integration
+- Route53 and ACM for HTTPS
 
 ---
 
-## Structure
+## 🧾 Files Structure (Terraform Modules)
 
-```
-project/
-├── modules/              # Reusable Terraform modules
-├── main.tf               # Root module
-├── variables.tf          # Input variables
-├── outputs.tf            # Outputs like public IP, ALB DNS, etc.
-├── terraform.tfvars      # Project-specific variable values
-├── provider.tf           # AWS provider config
-├── .gitignore            # Ignore Terraform state, logs, etc.
-└── README.md             # You're here!
-```
-
----
-
-## 🚀 Prerequisites
-AWS CLI installed and configured (`aws configure`)
-- Terraform >= 1.0
-- Git installed
-- SSH key (e.g., `utc-key.pem`)
-- A registered domain (for Route 53 & ACM)
+| File              | Description |
+|-------------------|-------------|
+| `provider.tf`      | AWS provider setup |
+| `vpc.tf`           | VPC, subnets, route tables, NAT Gateways, IGW |
+| `security_groups.tf` | Security groups for ALB, EC2, RDS, Bastion, etc. |
+| `alb_tg.tf`        | Application Load Balancer and Target Group setup |
+| `ami.tf`           | AMI creation from app server |
+| `ec2.tf`           | Bastion and App EC2 instance creation |
+| `EFS_AS.tf`        | EFS Mount Targets and Auto Scaling Group setup |
+| `Iamrole.tf`       | IAM Role for EC2 to access S3 |
+| `key.pair.tf`      | Key pair definition |
+| `database.tf`      | RDS MySQL setup |
+| `Route53_ACM.tf`   | Route 53 Hosted Zone and ACM certificate setup |
+| `dataIp.tf`        | Public IP data fetch for Bastion SSH rule |
+| `variables.tf`     | Input variables |
+| `output.tf`        | Outputs like Bastion IP, ALB DNS, etc. |
 
 ---
 
-## Setup Instructions
 
-### 1. Clone the repository
+
+### Clone the repository
 ```bash
 git clone https://github.com/your-username/aws-multitier-terraform.git
 cd aws-multitier-terraform
 ```
+## Deployment Steps
 
-### 2. Initialize Terraform
-```bash
-terraform init
-```
+1. **Initialize Terraform**
+   ```bash
+   terraform init
+   ```
 
-### 3. Customize variables
-Edit `terraform.tfvars` or create one:
-```hcl
-region        = "us-east-1"
-key_name      = "utc-key"
-domain_name   = "yourdomain.com"
-```
+2. Review the Plan**
+   ```bash
+   terraform plan
+   ```
 
-### 4. Validate and plan the infrastructure
-```bash
-terraform plan
-```
+3. **Apply the Infrastructure**
+   ```bash
+   terraform apply
+   ```
 
-### 5. Apply to deploy resources
-```bash
-terraform apply
-```
-
----
-
-## Features Deployed
-
-| Resource           | Details                                       |
-|--------------------|-----------------------------------------------|
-| VPC & Subnets      | 3-tier architecture with public/private split |
-| Security Groups    | Granular access control                       |
-| Bastion Host       | SSH access to private instances               |
-| App Servers        | Auto-scaled, behind ALB                       |
-| Load Balancer      | ALB with HTTP→HTTPS redirection               |
-| RDS MySQL          | Private DB with IAM auth                      |
-| EFS                | Shared volume mounted to App servers          |
-| S3                 | Log storage with IAM access                   |
-| Cron Job           | Uploads logs to S3                            |
-| Launch Template    | Used in Auto Scaling Group                    |
-| Route 53 & ACM     | HTTPS with custom domain                      |
-| SNS Topic          | ASG event notifications                       |
+4. **Get Outputs**
+   After deployment, Terraform will output:
+   - Public and private subnet ID
+   - VPC ID
+   - Bastion Host Public IP
+   - SSH to the bastion host
 
 ---
 
-## Outputs
+## Notes on Security
 
-- Bastion Public IP
-- ALB DNS Name
-- Private Subnet IDs
-- RDS Endpoint
+- `.terraform/`, `.tfstate`, `.tfvars`, `.pem`, and logs are excluded in `.gitignore`.
+- No hard-coded credentials—access handled through AWS IAM roles or environment variables.
 
 ---
-
-## Ensure 
-
-- Don’t upload `.pem` keys, `.tfstate`, or `.terraform/` to GitHub
-- Use `.gitignore` to prevent accidental commits
-
 ---
 
-## 🧹 Clean Up
+## Before pushing
+
+- Add `.gitignore` to exclude `.terraform/`, state files, logs
+- Make sure no `.pem` or sensitive files are tracked
+- Initialize git repo and connect to GitHub
 
 ```bash
-terraform destroy
+git init
+git add .
+git commit -m "Initial commit"
+git remote add origin https://github.com/your-username/your-repo.git
+git push -u origin main
+```
+
+If `.terraform/` was accidentally committed:
+
+```bash
+git rm -r --cached .terraform/
+git commit -m "Remove .terraform from repo"
+git push origin main --force
 ```
 
 ---
 
-## Credits
+## Questions?
+Reach out or open an issue in this GitHub repo.
 
-Built with:
-- Terraform Modules
-- AWS Free Tier Services
-- GitHub for CI/CD
 
----
-
-## 📧 Contact
-
-For questions or issues, contact **maryam.a.ahmed08@gmail.com**
