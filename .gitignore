@@ -1,0 +1,11 @@
+cat <<EOF > project-clean/.gitignore
+.terraform/
+*.tfstate
+*.tfstate.*
+*.log
+*.pem
+*.tfvars
+terraform.tfstate.d/
+crash.log
+EOF
+
